@@ -81,34 +81,57 @@ export function CartPage() {
 
   return (
     <div className="page">
-      <h1>Your cart</h1>
+      {/* Breadcrumb */}
+      <div className="breadcrumb">
+        <Link to="/">Home</Link>
+        <span>/</span>
+        <span>Cart</span>
+      </div>
+
       {error && <p className="banner error">{error}</p>}
 
       {empty ? (
-        <p className="muted">
-          Your cart is empty. <Link to="/">Continue shopping</Link>
-        </p>
+        <div style={{ textAlign: "center", padding: "4rem 0" }}>
+          <h2>Your cart is empty</h2>
+          <p className="muted" style={{ marginBottom: "2rem" }}>Looks like you haven't added anything to your cart yet.</p>
+          <Link to="/" className="btn primary">Continue Shopping</Link>
+        </div>
       ) : (
         <>
-          <table className="data-table">
+          <table className="cart-table">
             <thead>
               <tr>
                 <th>Product</th>
                 <th>Price</th>
-                <th>Qty</th>
-                <th>Line total</th>
-                <th />
+                <th>Quantity</th>
+                <th>Subtotal</th>
               </tr>
             </thead>
             <tbody>
               {items.map((line) => (
                 <tr key={line.productId}>
-                  <td>{line.productName}</td>
+                  <td>
+                    <div className="cart-item-info">
+                      <span 
+                        className="cart-item-remove" 
+                        onClick={() => void removeLine(line.productId)}
+                        title="Remove item"
+                      >
+                        ✕
+                      </span>
+                      <img 
+                        src={`https://picsum.photos/seed/${line.productId}/60/60`} 
+                        alt={line.productName}
+                        className="cart-item-image"
+                      />
+                      <span>{line.productName}</span>
+                    </div>
+                  </td>
                   <td>{formatMoney(line.price)}</td>
                   <td>
                     <input
                       type="number"
-                      min={0}
+                      min={1}
                       key={`${line.productId}-${line.quantity}`}
                       defaultValue={line.quantity}
                       disabled={busyId === line.productId}
@@ -121,36 +144,47 @@ export function CartPage() {
                     />
                   </td>
                   <td>{formatMoney(line.price * line.quantity)}</td>
-                  <td>
-                    <button
-                      type="button"
-                      className="btn ghost small"
-                      disabled={busyId === line.productId}
-                      onClick={() => void removeLine(line.productId)}
-                    >
-                      Remove
-                    </button>
-                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <div className="cart-footer">
-            <p className="total">
-              Total ({cart?.itemCount ?? 0} items):{" "}
-              <strong>{formatMoney(cart?.totalAmount ?? 0)}</strong>
-            </p>
-            <div className="row">
-              <button
-                type="button"
-                className="btn ghost"
-                disabled={busyId === "__all__"}
-                onClick={() => void clear()}
-              >
-                Clear cart
-              </button>
-              <Link to="/checkout" className="btn primary">
-                Checkout
+
+          <div className="cart-actions">
+            <Link to="/" className="btn ghost">Return To Shop</Link>
+            <button
+              type="button"
+              className="btn ghost"
+              disabled={busyId === "__all__"}
+              onClick={() => void clear()}
+            >
+              Clear Cart
+            </button>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem", marginTop: "3rem" }}>
+            {/* Coupon Section */}
+            <div className="coupon-section">
+              <input type="text" placeholder="Coupon Code" style={{ flex: 1 }} />
+              <button className="btn primary">Apply Coupon</button>
+            </div>
+
+            {/* Cart Total */}
+            <div className="cart-summary">
+              <h3>Cart Total</h3>
+              <div className="cart-summary-row">
+                <span>Subtotal:</span>
+                <span>{formatMoney(cart?.totalAmount ?? 0)}</span>
+              </div>
+              <div className="cart-summary-row">
+                <span>Shipping:</span>
+                <span>Free</span>
+              </div>
+              <div className="cart-summary-row">
+                <span><strong>Total:</strong></span>
+                <span><strong>{formatMoney(cart?.totalAmount ?? 0)}</strong></span>
+              </div>
+              <Link to="/checkout" className="btn primary full-width" style={{ marginTop: "1rem" }}>
+                Proceed to checkout
               </Link>
             </div>
           </div>
